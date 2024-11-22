@@ -1,38 +1,63 @@
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
 
+// Function declarations
+void readInput(int n, int m, int prices[], int cost[], int limit[], float proportions[n][m]);
+void printTable(int n, int m, int prices[], int cost[], int limit[], float proportions[n][m]);
+void generateLpSolveFile(int n, int m, int prices[], int limit[], float proportions[n][m]);
+
 int main() {
-    // Read the number of items
+    // Read the number of products and compounds
     int n, m;
     scanf("%d %d", &n, &m);
 
-    // Read the n prices of the items
+    // Allocate data
     int prices[n];
+    int cost[m], limit[m];
+    float proportions[n][m];
+
+    // Read input data
+    readInput(n, m, prices, cost, limit, proportions);
+
+#ifdef DEBUG
+    // Print data in table format
+    printTable(n, m, prices, cost, limit, proportions);
+#endif
+
+    // Generate the output file in lp_solve format
+    generateLpSolveFile(n, m, prices, limit, proportions);
+
+    printf("File 'problema.lp' successfully generated!\n");
+    return 0;
+}
+
+// Function to read input data
+void readInput(int n, int m, int prices[], int cost[], int limit[], float proportions[n][m]) {
+    // Read product prices
     for (int i = 0; i < n; i++) {
         scanf("%d", &prices[i]);
     }
 
-    // read cost and limit of the m compounds
-    int cost[m], limit[m];
+    // Read compound costs and limits
     for (int i = 0; i < m; i++) {
         scanf("%d %d", &cost[i], &limit[i]);
     }
 
-    // read the qnty of each compound for a liter of each product
-    float proportions[n][m];
+    // Read proportions of each compound in products
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             scanf("%f", &proportions[i][j]);
         }
     }
+}
 
-    #ifdef DEBUG
-    // Imprimir os dados em formato de tabela
+// Function to print data in table format
+void printTable(int n, int m, int prices[], int cost[], int limit[], float proportions[n][m]) {
     printf("\t|");
     for (int j = 0; j < m; j++) {
-        printf(" composto %d\t|", j + 1);
+        printf(" compound %d\t|", j + 1);
     }
-    printf(" valor\t|\n");
+    printf(" value\t|\n");
 
     for (int i = 0; i < n; i++) {
         printf("prod %d\t|", i + 1);
@@ -42,27 +67,28 @@ int main() {
         printf("    %d\t|\n", prices[i]);
     }
 
-    printf("custo\t|");
+    printf("cost\t|");
     for (int j = 0; j < m; j++) {
         printf("    %d\t\t|", cost[j]);
     }
     printf("\n");
 
-    printf("limite\t|");
+    printf("limit\t|");
     for (int j = 0; j < m; j++) {
         printf("    %d\t|", limit[j]);
     }
     printf("\n");
-    #endif
+}
 
-     // Abrir um arquivo para saída no formato lp_solve
+// Function to generate the lp_solve file
+void generateLpSolveFile(int n, int m, int prices[], int limit[], float proportions[n][m]) {
     FILE *output = fopen("problema.lp", "w");
     if (output == NULL) {
-        printf("Erro ao criar o arquivo de saída.\n");
-        return 1;
+        printf("Error creating output file.\n");
+        exit(1);
     }
 
-    // Escrever a função objetivo
+    // Write the objective function
     fprintf(output, "max: ");
     for (int i = 0; i < n; i++) {
         fprintf(output, "%d x%d", prices[i], i + 1);
@@ -72,7 +98,7 @@ int main() {
     }
     fprintf(output, ";\n");
 
-    // Escrever as restrições para os limites de compostos
+    // Write constraints for compound limits
     for (int j = 0; j < m; j++) {
         for (int i = 0; i < n; i++) {
             fprintf(output, "%.1f x%d", proportions[i][j], i + 1);
@@ -83,17 +109,10 @@ int main() {
         fprintf(output, " <= %d;\n", limit[j]);
     }
 
-    // Escrever as variáveis como não-negativas
+    // Write non-negativity constraints
     for (int i = 0; i < n; i++) {
         fprintf(output, "x%d >= 0;\n", i + 1);
     }
 
-    // Fechar o arquivo
     fclose(output);
-
-    printf("Arquivo 'problema.lp' gerado com sucesso!\n");
-
-
-
-    return 0;
 }
