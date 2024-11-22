@@ -55,6 +55,44 @@ int main() {
     printf("\n");
     #endif
 
+     // Abrir um arquivo para saída no formato lp_solve
+    FILE *output = fopen("problema.lp", "w");
+    if (output == NULL) {
+        printf("Erro ao criar o arquivo de saída.\n");
+        return 1;
+    }
+
+    // Escrever a função objetivo
+    fprintf(output, "max: ");
+    for (int i = 0; i < n; i++) {
+        fprintf(output, "%d x%d", prices[i], i + 1);
+        if (i < n - 1) {
+            fprintf(output, " + ");
+        }
+    }
+    fprintf(output, ";\n");
+
+    // Escrever as restrições para os limites de compostos
+    for (int j = 0; j < m; j++) {
+        for (int i = 0; i < n; i++) {
+            fprintf(output, "%.1f x%d", proportions[i][j], i + 1);
+            if (i < n - 1) {
+                fprintf(output, " + ");
+            }
+        }
+        fprintf(output, " <= %d;\n", limit[j]);
+    }
+
+    // Escrever as variáveis como não-negativas
+    for (int i = 0; i < n; i++) {
+        fprintf(output, "x%d >= 0;\n", i + 1);
+    }
+
+    // Fechar o arquivo
+    fclose(output);
+
+    printf("Arquivo 'problema.lp' gerado com sucesso!\n");
+
 
 
     return 0;
