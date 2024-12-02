@@ -2,10 +2,10 @@ CC=gcc
 CFLAGS=-Wall -std=c99 -g
 # LDFLAGS=-lm
 
-all: main
+all: producao
 
-main: main.o
-	$(CC) $(CFLAGS) -o main main.o
+producao: main.o
+	$(CC) $(CFLAGS) -o producao main.o
 
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
